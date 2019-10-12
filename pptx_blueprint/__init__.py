@@ -37,7 +37,27 @@ class Template:
             label (str): label of the placeholder (without curly braces)
             filename (path-like): path to an image file
         """
-        pass
+        shapes_to_replace = self._find_shapes(label)
+        if not shapes_to_replace:
+            return
+        if isinstance(filename, str):
+            filename = pathlib.Path(filename)
+        if not filename.is_file():
+            raise FileNotFoundError(f"The file does not exist: {filename}")
+        img_file = open(filename, "rb")
+        old_shape: BaseShape
+        for old_shape in shapes_to_replace:
+            slide_shapes = old_shape._parent
+            slide_shapes.add_picture(
+                image_file=img_file,
+                left=old_shape.left,
+                top=old_shape.top,
+                width=old_shape.width,
+                height=old_shape.height
+            )
+            # Removing shapes is performed at the lxml level.
+            # The `element` attribute contains an instance of `lxml.etree._Element`.
+            slide_shapes.element.remove(old_shape.element)
 
     def replace_table(self, label: str, data) -> None:
         """Replaces rectangle placeholders on one or many slides.
