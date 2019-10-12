@@ -27,7 +27,7 @@ slide_info = [get_shape_info(shape) for shape in prs.slides[0].shapes]
 print(slide_info)
 
 
-def replace_by_image(slide: Slide, name: str, img_path: Path) -> List[BaseShape]:
+def replace_by_image(slide: Slide, name: str, img_path: Path, *, do_not_scale: bool = False) -> List[BaseShape]:
     shapes_to_replace = [shape for shape in slide.shapes if hasattr(shape, "text") and shape.text == name]
     print(len(shapes_to_replace))
     new_image_shapes = []
@@ -40,10 +40,19 @@ def replace_by_image(slide: Slide, name: str, img_path: Path) -> List[BaseShape]
             img_file,
             old_shape.left,
             old_shape.top,
-            old_shape.width,
-            old_shape.height
         )
-        new_image_shapes.append((img_shape))
+        old_aspect_ratio = old_shape.width / old_shape.height
+        new_aspect_ratio = img_shape.width / img_shape.height
+        if img_shape.height <= old_shape.height and img_shape.width <= old_shape.width and not do_not_scale:
+            if old_aspect_ratio >= new_aspect_ratio:
+                img_shape.width = old_shape.width
+                img_shape.height = int(img_shape.width / new_aspect_ratio)
+            else:
+                img_shape.height = old_shape.height
+                img_shape.width = int(img_shape.height * new_aspect_ratio)
+        img_shape.top += int((old_shape.height - img_shape.height) / 2)
+        img_shape.left += int((old_shape.width - img_shape.width) / 2)
+        new_image_shapes.append(img_shape)
         slide_shapes.element.remove(old_shape.element)
     return new_image_shapes
 
