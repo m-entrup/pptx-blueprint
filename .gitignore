@@ -90,7 +90,8 @@ target/
 #   However, in case of collaboration, if having platform-specific dependencies or dependencies
 #   having no cross-platform support, pipenv may install dependencies that don't work, or not
 #   install all needed dependencies.
-#Pipfile.lock
+Pipfile
+Pipfile.lock
 
 # celery beat schedule file
 celerybeat-schedule
@@ -127,5 +128,8 @@ dmypy.json
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
+
+### PyCharm ###
+.idea/*
 
 # End of https://www.gitignore.io/api/python,jupyternotebooks,visualstudiocode
