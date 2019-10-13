@@ -33,47 +33,49 @@ class Template:
         for shape in shapes:
             shape.text = new_text
 
-    def replace_picture(self, label: str, filename: _Pathlike, *, do_not_scale_up: bool = False) -> None:
+    def replace_picture(self, label: str, filename: _Pathlike, *, scale_up: bool = True) -> None:
         """Replaces rectangle placeholders on one or many slides.
+
+        The aspect ratio of the image is not changed.
+        To large images are always resized.
+        The behaviour for small images is configurable.
+        Centering is always active.
 
         Args:
             label (str): label of the placeholder (without curly braces)
             filename (path-like): path to an image file
-            do_not_scale_up (bool): deactivates that the image is enlarged (default: False)
+            scale_up (bool): deactivates that the image is enlarged (default: True)
         """
-        shapes_to_replace = self._find_shapes(label)
+        slide_number, tag_name = self._parse_label(label)
+        shapes_to_replace = self._find_shapes(slide_number, tag_name)
         if not shapes_to_replace:
-            return
-        if isinstance(filename, str):
-            filename = pathlib.Path(filename)
-        if not filename.is_file():
-            raise FileNotFoundError(f"The file does not exist: {filename}")
-        img_file = open(filename, "rb")
-        old_shape: BaseShape
-        for old_shape in shapes_to_replace:
-            slide_shapes = old_shape._parent
-            img_shape = slide_shapes.add_picture(
-                image_file=img_file,
-                left=old_shape.left,
-                top=old_shape.top,
-            )
-            # Scaling the image if `do_not_scale == False`:
-            if img_shape.height <= old_shape.height and img_shape.width <= old_shape.width and not do_not_scale_up:
-                old_aspect_ratio = old_shape.width / old_shape.height
-                new_aspect_ratio = img_shape.width / img_shape.height
-                if old_aspect_ratio >= new_aspect_ratio:
-                    img_shape.width = old_shape.width
-                    img_shape.height = int(img_shape.width / new_aspect_ratio)
-                else:
-                    img_shape.height = old_shape.height
-                    img_shape.width = int(img_shape.height * new_aspect_ratio)
-            # Centering the image at the extent of the placeholder:
-            img_shape.top += int((old_shape.height - img_shape.height) / 2)
-            img_shape.left += int((old_shape.width - img_shape.width) / 2)
-            del slide_shapes[slide_shapes.index(old_shape)]
-            # Removing shapes is performed at the lxml level.
-            # The `element` attribute contains an instance of `lxml.etree._Element`.
-            slide_shapes.element.remove(old_shape.element)
+            raise ValueError(f"The label '{label}' can't be found in the template.")
+        with open(filename, "rb") as img_file:
+            old_shape: BaseShape
+            for old_shape in shapes_to_replace:
+                slide_shapes = old_shape._parent
+                img_shape = slide_shapes.add_picture(
+                    image_file=img_file,
+                    left=old_shape.left,
+                    top=old_shape.top,
+                )
+                # Scaling the image if `scale_up == True`:
+                if img_shape.height <= old_shape.height and img_shape.width <= old_shape.width and scale_up:
+                    old_aspect_ratio = old_shape.width / old_shape.height
+                    new_aspect_ratio = img_shape.width / img_shape.height
+                    if old_aspect_ratio >= new_aspect_ratio:
+                        img_shape.width = old_shape.width
+                        img_shape.height = int(img_shape.width / new_aspect_ratio)
+                    else:
+                        img_shape.height = old_shape.height
+                        img_shape.width = int(img_shape.height * new_aspect_ratio)
+                # Centering the image at the extent of the placeholder:
+                img_shape.top += int((old_shape.height - img_shape.height) / 2)
+                img_shape.left += int((old_shape.width - img_shape.width) / 2)
+                del slide_shapes[slide_shapes.index(old_shape)]
+                # Removing shapes is performed at the lxml level.
+                # The `element` attribute contains an instance of `lxml.etree._Element`.
+                slide_shapes.element.remove(old_shape.element)
 
     def replace_table(self, label: str, data) -> None:
         """Replaces rectangle placeholders on one or many slides.
