@@ -50,10 +50,6 @@ class Template:
         shapes_to_replace = self._find_shapes(slide_number, tag_name)
         if not shapes_to_replace:
             raise ValueError(f"The label '{label}' can't be found in the template.")
-        if isinstance(filename, str):
-            filename = pathlib.Path(filename)
-        if not filename.is_file():
-            raise FileNotFoundError(f"The file does not exist: {filename}")
         with open(filename, "rb") as img_file:
             old_shape: BaseShape
             for old_shape in shapes_to_replace:
