@@ -41,7 +41,8 @@ class Template:
             filename (path-like): path to an image file
             do_not_scale_up (bool): deactivates that the image is enlarged (default: False)
         """
-        shapes_to_replace = self._find_shapes(label)
+        slide_number, tag_name = self._parse_label(label)
+        shapes_to_replace = self._find_shapes(slide_number, tag_name)
         if not shapes_to_replace:
             raise ValueError(f"The label '{label}' can't be found in the template.")
         if isinstance(filename, str):
