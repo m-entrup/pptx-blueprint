@@ -46,3 +46,8 @@ html_theme = 'classic'
 [Autodoc](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html) is needed to use different directives that include the documentation created with `sphinx-apidoc` into our documentation. For example `.. autoclass:: pptx_blueprint.Template` will load the automatically created documentation for the class `Template`.
 [Napoleon](https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html) is necessary to parse docstrings that follow the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html).
 The default theme of Sphinx is [Alabaster](https://alabaster.readthedocs.io/en/latest/) is the default theme. From [the list of buildin themes](https://www.sphinx-doc.org/en/master/usage/theming.html#builtin-themes) we have selected *classic* to be theme we use.
+
+## Sources
+
+- [An idiot’s guide to Python documentation with Sphinx and ReadTheDocs](https://samnicholls.net/2016/06/15/how-to-sphinx-readthedocs/) by [Sam Nicholls](https://samnicholls.net/about/)
+- [Sphinx for Python documentation](https://gisellezeno.com/tutorials/sphinx-for-python-documentation.html) by [Giselle Zeno](https://gisellezeno.com/pages/about-me.html)
