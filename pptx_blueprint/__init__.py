@@ -33,13 +33,18 @@ class Template:
         for shape in shapes:
             shape.text = new_text
 
-    def replace_picture(self, label: str, filename: _Pathlike, *, do_not_scale_up: bool = False) -> None:
+    def replace_picture(self, label: str, filename: _Pathlike, *, scale_up: bool = True) -> None:
         """Replaces rectangle placeholders on one or many slides.
+
+        The aspect ratio of the image is not changed.
+        To large images are always resized.
+        The behaviour for small images is configurable.
+        Centering is always active.
 
         Args:
             label (str): label of the placeholder (without curly braces)
             filename (path-like): path to an image file
-            do_not_scale_up (bool): deactivates that the image is enlarged (default: False)
+            scale_up (bool): deactivates that the image is enlarged (default: True)
         """
         slide_number, tag_name = self._parse_label(label)
         shapes_to_replace = self._find_shapes(slide_number, tag_name)
@@ -58,8 +63,8 @@ class Template:
                     left=old_shape.left,
                     top=old_shape.top,
                 )
-                # Scaling the image if `do_not_scale == False`:
-                if img_shape.height <= old_shape.height and img_shape.width <= old_shape.width and not do_not_scale_up:
+                # Scaling the image if `scale_up == True`:
+                if img_shape.height <= old_shape.height and img_shape.width <= old_shape.width and scale_up:
                     old_aspect_ratio = old_shape.width / old_shape.height
                     new_aspect_ratio = img_shape.width / img_shape.height
                     if old_aspect_ratio >= new_aspect_ratio:
